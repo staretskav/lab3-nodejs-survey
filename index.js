@@ -2,6 +2,34 @@ import { Command } from 'commander';
 import fs from 'node:fs';
 
 const program = new Command();
+// Українські повідомлення та довідка Commander
+program.configureHelp({
+  helpWidth: 100,
+  formatHelp(cmd, helper) {
+    const originalHelp = Command.prototype.createHelp.call(cmd);
+    const text = originalHelp.formatHelp(cmd, helper);
+
+    return text
+      .replace(/^Usage:/gm, 'Використання:')
+      .replace(/^Arguments:/gm, 'Аргументи:')
+      .replace(/^Options:/gm, 'Опції:')
+      .replace(/^Commands:/gm, 'Команди:');
+  }
+});
+
+program.configureOutput({
+  writeErr: (str) => {
+    const translated = str
+      .replace(/error: missing required argument '([^']+)'/g,
+        'Помилка: відсутній обов’язковий аргумент "$1"')
+      .replace(/error: unknown option '([^']+)'/g,
+        'Помилка: невідома опція "$1"')
+      .replace(/error: too many arguments/g,
+        'Помилка: забагато аргументів');
+
+    process.stderr.write(translated);
+  }
+});
 
 program
   .name('lab3')
