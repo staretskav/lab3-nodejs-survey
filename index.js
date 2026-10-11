@@ -9,7 +9,7 @@ program
   .version('1.0.0')
   .option('-f, --file <path>', 'Шлях до JSON-файлу', 'data.json');
 
-// Функція читання JSON-файлу
+// Читання JSON-файлу
 function loadData() {
   const filePath = program.opts().file;
 
@@ -74,7 +74,7 @@ program
     });
   });
 
-// Команда show — перегляд одного респондента
+// Команда show — один респондент
 program
   .command('show <respondentId>')
   .description('Показати дані респондента за ідентифікатором')
@@ -95,7 +95,7 @@ program
     console.log(JSON.stringify(respondent, null, 2));
   });
 
-// Команда field — отримання значення поля
+// Команда field — значення поля
 program
   .command('field <respondentId> <path>')
   .description('Показати значення поля респондента')
@@ -136,6 +136,135 @@ program
     } else {
       console.log(value);
     }
+  });
+
+// Команда questions — питання з фільтрами
+program
+  .command('questions')
+  .description('Показати питання опитування')
+  .option('-t, --type <type>', 'Фільтр за типом питання')
+  .option('-r, --required <value>', 'Фільтр за обов’язковістю: true або false')
+  .action((options) => {
+    const data = loadData();
+    if (!data) return;
+
+    let questions = data.questions;
+
+    if (options.type) {
+      questions = questions.filter(
+        (question) => question.type === options.type
+      );
+    }
+
+    if (options.required !== undefined) {
+      if (!['true', 'false'].includes(options.required)) {
+        console.error('Помилка: --required має бути true або false.');
+        process.exitCode = 1;
+        return;
+      }
+
+      const required = options.required === 'true';
+
+      questions = questions.filter(
+        (question) => question.required === required
+      );
+    }
+
+    if (questions.length === 0) {
+      console.log('Питань за заданими умовами не знайдено.');
+      return;
+    }
+
+    questions.forEach((question) => {
+      console.log(
+        `${question.questionId}. ${question.text} (${question.type}, обов'язкове: ${question.required})`
+      );
+    });
+  });
+
+// Команда answers — відповіді на вибране питання
+program
+  .command('answers <questionId>')
+  .description('Показати відповіді всіх респондентів на вибране питання')
+  .action((questionId) => {
+    const data = loadData();
+    if (!data) return;
+
+    const id = Number(questionId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      console.error(
+        'Помилка: ідентифікатор питання має бути додатним цілим числом.'
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    const question = data.questions.find(
+      (item) => item.questionId === id
+    );
+
+    if (!question) {
+      console.error(`Помилка: питання з ID ${id} не знайдено.`);
+      process.exitCode = 1;
+      return;
+    }
+
+    console.log(`Питання ${id}: ${question.text}`);
+
+    data.responses.forEach((respondent) => {
+      const answer = respondent.answers.find(
+        (item) => item.questionId === id
+      );
+
+      let value = 'Немає відповіді';
+
+      if (answer && answer.value !== null) {
+        value = Array.isArray(answer.value)
+          ? answer.value.join(', ')
+          : String(answer.value);
+      }
+
+      console.log(`${respondent.respondentId}: ${value}`);
+    });
+  });
+
+// Команда respondent — відповіді одного респондента
+program
+  .command('respondent <respondentId>')
+  .description('Показати відповіді респондента разом із текстами питань')
+  .action((respondentId) => {
+    const data = loadData();
+    if (!data) return;
+
+    const respondent = data.responses.find(
+      (response) => response.respondentId === respondentId
+    );
+
+    if (!respondent) {
+      console.error(`Помилка: респондента "${respondentId}" не знайдено.`);
+      process.exitCode = 1;
+      return;
+    }
+
+    console.log(`Респондент: ${respondent.respondentId}`);
+
+    data.questions.forEach((question) => {
+      const answer = respondent.answers.find(
+        (item) => item.questionId === question.questionId
+      );
+
+      let value = 'Немає відповіді';
+
+      if (answer && answer.value !== null) {
+        value = Array.isArray(answer.value)
+          ? answer.value.join(', ')
+          : String(answer.value);
+      }
+
+      console.log(`${question.questionId}. ${question.text}`);
+      console.log(`   Відповідь: ${value}`);
+    });
   });
 
 // Обробка аргументів командного рядка
