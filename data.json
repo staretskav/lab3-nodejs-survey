@@ -1,0 +1,93 @@
+{ 
+"surveyId": "survey_01", 
+"title": "Опитування про навчання", 
+"description": "Опитування щодо зручності навчального процесу", 
+"isActive": true, 
+"questions": [ 
+{ 
+"questionId": 1, 
+"text": "Який формат навчання вам зручніший?", 
+"type": "singleChoice", 
+"required": true, 
+"options": ["Очний", "Дистанційний", "Змішаний"], 
+"scale": null 
+}, 
+{ 
+"questionId": 2, 
+"text": "Які пристрої ви використовуєте для навчання?", 
+"type": "multipleChoice", 
+      "required": true, 
+      "options": ["Ноутбук", "Смартфон", "Планшет"], 
+      "scale": null 
+    }, 
+ 
+    { 
+      "questionId": 3, 
+      "text": "Оцініть зручність навчання", 
+      "type": "scale", 
+      "required": true, 
+      "options": null, 
+      "scale": { 
+        "min": 1, 
+        "max": 5 
+      } 
+    }, 
+ 
+    { 
+      "questionId": 4, 
+      "text": "Що б ви хотіли покращити?", 
+      "type": "freeText", 
+      "required": false, 
+      "options": null, 
+      "scale": null 
+    } 
+  ], 
+ 
+  "responses": [ 
+    { 
+      "respondentId": "respondent_01", 
+      "submittedAt": "2026-09-15T14:30:00", 
+      "answers": [ 
+        { 
+          "questionId": 1, 
+          "value": "Змішаний" 
+        }, 
+        { 
+          "questionId": 2, 
+          "value": ["Ноутбук", "Смартфон"] 
+        }, 
+        { 
+          "questionId": 3, 
+          "value": 5 
+        }, 
+        { 
+          "questionId": 4, 
+          "value": "Хотілося б більше практичних занять" 
+        } 
+      ] 
+    }, 
+ 
+    { 
+      "respondentId": "respondent_02", 
+      "submittedAt": "2026-09-15T15:10:00", 
+      "answers": [ 
+        { 
+          "questionId": 1, 
+          "value": "Дистанційний" 
+        }, 
+        { 
+          "questionId": 2, 
+          "value": ["Ноутбук"] 
+        }, 
+        { 
+          "questionId": 3, 
+          "value": 4 
+        }, 
+        { 
+          "questionId": 4, 
+          "value": null 
+        } 
+      ] 
+    } 
+  ] 
+}
